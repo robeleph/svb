@@ -1,3 +1,4 @@
+const config = require('config')
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -5,20 +6,19 @@ const cors = require("cors");
 const PORT = process.env.PORT || 3000;
 const mongoose = require('mongoose');
 require('dotenv/config');
-//use local db instead?
-//try this 
-// mongoose.connect(, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('connected to DB'));
 
-mongoose.connect(process.env.DB_CONN_LOCAL, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log('connected to DB') });
-const userRoute = require('./routes/user');
+mongoose
+  .connect("mongodb://localhost/samVision", { useNewUrlParser: true })
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch(err => console.error("Could not connect to MongoDB..."));
+
+
+// mongoose.connect(process.env.DB_CONN_LOCAL, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log('connected to DB') });
+const userRoute = require('./routes/user.route');
 const orderRoute = require('./routes/order');
 const productRoute = require('./routes/product');
 const appointmentRoute = require('./routes/appointment');
-/*
-    middleware for express that is used to enable [CORS]
-    (http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) with various options.
-    to enable Cross-origin_resource_sharing) with various options.
-*/
+
 app.use(cors());
 
 //no use to add /user on routes under file routes/user
@@ -34,6 +34,11 @@ app.get('/', function (req, res) {
 
 });
 
+if (!config.get("myprivatekey")) {
+    console.error("FATAL ERROR: myprivatekey is not defined.");
+    process.exit(1);
+  }
+  
 
 //test routes
 app.post('/h', function (req, res) {
