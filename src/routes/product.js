@@ -73,6 +73,21 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    
+    try {
+        if (user.type === "adm") {
+            await Product.findById({ _id: req.params.id });
+            const _afterProduct = await Product.findOne({ _id: req.params.id });
+            return res.json(_afterProduct);
+        } else {
+            return res.json({ message: "Not allowed to update for this user!" });
+        }
+    } catch (err) {
+        return res.json({ message: err });
+    }
+});
+
 router.delete('/delete/:id', async (req, res) => {
     const user = new User({
         id: req.body.user.id,
